@@ -1,0 +1,110 @@
+package com.jx.argo.jxlifecycle;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+public class Lifecycle implements Serializable{
+
+	/**
+	 * 创建时间
+	 */
+	private final long brithTime = System.currentTimeMillis();
+	/**
+	 * 上次执行结束时间
+	 */
+	private long lastTime = System.currentTimeMillis();
+	/**
+	 * 路由时间
+	 */
+	private long routeTime;
+	/**
+	 * 执行时间
+	 */
+	private long executeTime;
+	/**
+	 * 总耗时
+	 */
+	private long totalTime;
+	
+	/**
+	 * 前置拦截
+	 */
+	private final Map<String,Long> preInterceptor = new LinkedHashMap<String,Long>();
+	/**
+	 * 后置拦截
+	 */
+	private final Map<String,Long> postInterceptor = new LinkedHashMap<String,Long>();
+	
+	
+	public long getRouteTime() {
+		return routeTime;
+	}
+
+	public void setRouteTime(long routeTime) {
+		this.routeTime = routeTime;
+	}
+
+	public long getLastTime() {
+		return lastTime;
+	}
+
+	public void setLastTime(long lastTime) {
+		this.lastTime = lastTime;
+	}
+
+	public long getExecuteTime() {
+		return executeTime;
+	}
+
+	public void setExecuteTime(long executeTime) {
+		this.executeTime = executeTime;
+	}
+
+	public long getBrithTime() {
+		return brithTime;
+	}
+
+	public long getTotalTime() {
+		return totalTime;
+	}
+
+	public void setTotalTime(long totalTime) {
+		this.totalTime = totalTime;
+	}
+
+	public Map<String, Long> getPreInterceptor() {
+		return preInterceptor;
+	}
+
+	public Map<String, Long> getPostInterceptor() {
+		return postInterceptor;
+	}
+
+	public void setTimestamp(LifecycleState state) {
+		this.setTimestamp(state, null);
+	}
+
+	public void setTimestamp(LifecycleState state,String clazz){
+		long tempTime = lastTime;
+		lastTime = System.currentTimeMillis();
+		long costTime = lastTime - tempTime;
+		totalTime = lastTime - brithTime;
+		switch (state) {
+			case ROUTE:
+				this.routeTime = costTime;
+				break;
+			case PRE:
+				this.preInterceptor.put(clazz,costTime);
+				break;
+			case EXECUTE:
+				this.executeTime = costTime;
+				break;
+			case POST:
+				this.postInterceptor.put(clazz,costTime);
+				break;
+		}
+	}
+}
